@@ -1,0 +1,8 @@
+node_modules
+/bazel-bin
+/bazel-genfiles
+/bazel-out
+/bazel-cali-nlp
+/bazel-testlogs
+*~
+/core.*
