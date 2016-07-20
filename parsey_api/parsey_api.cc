@@ -1,27 +1,3 @@
-/* Copyright 2016 Google Inc. All Rights Reserved.
-
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-
-// A gRPC server that classifies images into digit 0-9.
-// Given each request with an image pixels encoded as floats, the server
-// responds with 10 float values as probabilities for digit 0-9 respectively.
-// The classification is done by running image data through a simple softmax
-// regression network trained and exported by mnist_export.py.
-// The intention of this example to demonstrate usage of Tensorflow
-// APIs in an end-to-end scenario.
-
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -175,10 +151,6 @@ int main(int argc, char** argv) {
   const string bundle_path(argv[1]);
 
   tensorflow::port::InitMain(argv[0], &argc, &argv);
-
-  // WARNING(break-tutorial-inline-code): The following code snippet is
-  // in-lined in tutorials, please update tutorial documents accordingly
-  // whenever code changes.
 
   SessionBundleConfig session_bundle_config;
 
