@@ -10,31 +10,61 @@ However, some modifications to make it usable within TF Serving are in my fork:
 
 https://github.com/dmansfield/models/tree/documents-from-tensor
 
-## Project Setup
+## Project Setup and Build
 
 I don't much like submodules, and anyway the various projects involved (tensorflow, tensorflow serving and tensorflow models) have conflicting submodule revisions.
 
-Start by checking out tensorflow from github (https://github.com/tensorflow/tensorflow, master as of today is 0cf6daff66ff2d3c35defb07d1fc5100c37fefb3).
-
-Now checkout (in a parallel directory) tensorflow models from my fork (https://github.com/tensorflow/models, master as of today is 2a7f1c36d0e390ed289e0eeec14e1b46d11f0511).
-
-Within the models/syntaxnet directory, get rid of the tensorflow submodule and create a symlink to tensorflow checked out above.
-
-Now checkout (in a parallel directory) tensorflow serving (https://github.com/tensorflow/serving, head as of today is 7bbed91fa41688011e74f720f15e1cbf6bce6e33). As above, you must remove the submodules for "tensorflow" and "tf_models". Use the two already checkout out projcets.
-
-In this project:
+Here are my build steps:
 ```
- bazel build --nocheck_visibility parsey_api/... 
+# gcc 6.1.1 on Fedora 24, bazel 0.3.0
+cd /some/path
+mkdir api
+cd api
+pwd # This is the $BASE referenced below
+git clone https://github.com/tensorflow/tensorflow.git
+git clone https://github.com/dmansfield/models.git
+git clone https://github.com/dmansfield/parsey-mcparseface-api.git
+git clone https://github.com/tensorflow/serving.git
+cd tensorflow
+./configure
 ```
+Answer the questions.
+```
+cd ../models
+git checkout documents-from-tensor
+cd syntaxnet
+rm -rf tensorflow
+ln -s ../../tensorflow .
+cd ../../serving
+rm -rf tensorflow tf_models
+ln -s ../tensorflow
+ln -s ../models .
+cd ../parsey-mcparseface-api
+vi WORKSPACE
+```
+Now edit the tf_workspace hardcoded path (line 19) to point to the `$BASE/tensorflow` directory. And then you can start the build, which takes about 20 minutes on my system. 
+```
+bazel build -c opt parsey_api/...
+
+```
+
 Then run it:
 ```
- ./bazel-bin/parsey_api/parsey_api --port=9000 parsey_model
+./bazel-bin/parsey_api/parsey_api --port=9000 parsey_model
 ```
-And test it with the client:
+For the client, setup is easy:
 ```
- cd parsey_client
- node index.js
+# node 6.2.0 installed using nvm
+cd parsey_client
+npm install
 ```
+
+Run it with the client (note: the server address 127.0.0.1:9000 is hard-coded into the client.  Edit as necessary.
+```
+cd parsey_client
+node index.js
+```
+
 Good luck and feel free to ask questions via github.
 
 I've included an exported model in the parsey_model/ directory.
@@ -46,7 +76,7 @@ To recreate this, you must use the parsey_mcparseface.py script in the tensorflo
 Someone can help me here?
 
 ## Issues
-- Host and port are hardcoded in nodejs client. I use docker so that's where it's pointing.
+- Host and port are hardcoded in nodejs client.
 
 - Assets that are loaded by the module are loaded based on CWD of serving process, and are required in "syntaxnet/models/parsey_mcparseface" directory, even though they are not probably located there.  Current solution is to use a symlink.
 
